@@ -6,6 +6,7 @@ def main(page: ft.Page):
         page.views.clear()
         if page.route == "/":
             page.views.append(login_view(page))
+        #estas son las vistas que se crearán más adelante
         #elif page.route == "/dashboard":
         #    page.views.append(main_menu_view(page))
         #elif page.route == "/mapa":
