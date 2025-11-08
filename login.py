@@ -1,162 +1,124 @@
 import flet as ft
 
-def login_view(page: ft.Page):
-    # --- Configuración de la Ventana---
-    page.window.width = 375
-    page.window.height = 750 
-    page.window.resizable = False
-    page.padding = 0
-    
-    
-    # --- Definición de Colores y Estilos ---
-    COLOR_LIMA = "#7EE26C"
-    COLOR_FONDO_TARJETA = ft.Colors.WHITE
-    
-    # Degradado del fondo de la página
-    GRADIENT_BACKGROUND = ft.LinearGradient(
-        begin=ft.alignment.top_center,
-        end=ft.alignment.bottom_center,
-        colors=["#39D31F", "#6EDD5A"], 
-        tile_mode=ft.GradientTileMode.CLAMP
+def LoginView(on_login):
+    email_input = ft.TextField(
+        label="Correo electrónico",
+        hint_text="tu@email.com",
+        prefix_icon=ft.Icons.EMAIL_OUTLINED,
+        border_color="#d1d5db",
+        focused_border_color="#10b981",
     )
 
-    #Función login
-    def login_click(e):
-        if usuario.value and contrasena.value:
-            page.go("/dashboard") 
+    password_input = ft.TextField(
+        label="Contraseña",
+        password=True,
+        can_reveal_password=True,
+        prefix_icon=ft.Icons.LOCK_OUTLINED,
+        border_color="#d1d5db",
+        focused_border_color="#10b981",
+    )
+
+    def handle_login(e):
+        email = email_input.value
+        password = password_input.value
+
+        if email and password:
+            on_login({"email": email})  # llama al callback del main
         else:
-            mensaje.value = "Por favor, completa todos los campos."
-            mensaje.color = ft.Colors.RED_500
-            page.update()
+            email_input.error_text = "Por favor completa ambos campos"
+            email_input.update()
+            password_input.update()
 
-    # --- 1. Header (Logo y Título) ---
-    header_content = ft.Column(
-        [
-            ft.Container(
-                content=ft.Icon(ft.Icons.FLASH_ON, size=35, color=COLOR_FONDO_TARJETA),
-                width=60, height=60, border_radius=30, bgcolor=COLOR_LIMA,
-                alignment=ft.alignment.center, margin=ft.margin.only(bottom=15)
-            ),
-            ft.Text("EcoCharge", size=30, weight=ft.FontWeight.BOLD, color=ft.Colors.WHITE),
-            ft.Text("Energía limpia para tu viaje", size=15, color=ft.Colors.WHITE70),
-        ],
-        spacing=0,
-        horizontal_alignment=ft.CrossAxisAlignment.CENTER
-    )
-
-    header_area = ft.Container(
-        content=header_content, 
-        alignment=ft.alignment.bottom_center,
-        height=240, 
-        padding=ft.padding.only(top=50) 
-    )
-
-    # --- 2. Elementos de Formulario y Tarjeta Blanca ---
-    usuario = ft.TextField(
-        label="Correo electrónico", hint_text="tu@email.com", height=50, width=300,
-        bgcolor=ft.Colors.WHITE, border_radius=10, border_color=ft.Colors.TRANSPARENT,
-        focused_border_color=COLOR_LIMA, content_padding=15, prefix_icon=ft.Icons.MAIL_OUTLINE, dense=True
-    )
-    
-    contrasena = ft.TextField(
-        label="Contraseña", hint_text="•••••••••", password=True, can_reveal_password=True,
-        height=50, width=300, bgcolor=ft.Colors.WHITE, border_radius=10, 
-        border_color=ft.Colors.TRANSPARENT, focused_border_color=COLOR_LIMA, 
-        content_padding=15, prefix_icon=ft.Icons.LOCK_OUTLINE, dense=True
-    )
-    
-    enlace_olvido = ft.TextButton(
-        "¿Olvidaste tu contraseña?", style=ft.ButtonStyle(color=COLOR_LIMA)
-    )
-
-    boton_login = ft.ElevatedButton(
-        "Iniciar sesión", width=300, height=50,
-        style=ft.ButtonStyle(color=ft.Colors.WHITE, bgcolor=COLOR_LIMA, shape=ft.RoundedRectangleBorder(radius=10)),
-        on_click=login_click,
-    )
-    
-    enlace_registro = ft.Row(
-        [
-            ft.Text("¿No tienes cuenta?", color=ft.Colors.BLACK54),
-            ft.TextButton("Regístrate", style=ft.ButtonStyle(color=COLOR_LIMA))
-        ],
-        alignment=ft.MainAxisAlignment.CENTER, spacing=0
-    )
-
-    mensaje = ft.Text("", color=ft.Colors.RED_500, size=14)
-    
-    footer_inline = ft.Row(
-        [
-            ft.Icon(ft.Icons.LANGUAGE, size=18, color=COLOR_LIMA), 
-            ft.Text("Juntos por un planeta más verde", color=ft.Colors.BLACK54, size=14),
-        ],
-        spacing=5,
-        alignment=ft.MainAxisAlignment.CENTER
-    )
-    
-    card_content = ft.Column(
-        [
-            ft.Text("Bienvenido", size=22, weight=ft.FontWeight.BOLD, color=ft.Colors.BLACK87),
-            ft.Text("Inicia sesión para continuar", size=15, color=ft.Colors.BLACK54),
-            
-            ft.Container(height=30), 
-            usuario,
-            ft.Container(height=10),
-            contrasena,
-            
-            ft.Container(width=300, content=ft.Row([enlace_olvido], alignment=ft.MainAxisAlignment.END, height=35)),
-            
-            boton_login,
-            
-            ft.Text("o", color=ft.Colors.BLACK38),
-            
-            enlace_registro,
-            
-            ft.Container(height=10),
-            mensaje,
-            
-            ft.Container(expand=True), 
-            footer_inline
-        ],
-        alignment=ft.MainAxisAlignment.START,
-        horizontal_alignment=ft.CrossAxisAlignment.CENTER,
-        spacing=5,
+    # Contenedor principal con degradado igual que tus otras vistas
+    return ft.Container(
         expand=True,
-        scroll=ft.ScrollMode.ADAPTIVE
-    )
-    
-    login_card = ft.Container(
-        height=480, 
-        width=page.width,
-        padding=30,
-        bgcolor=COLOR_FONDO_TARJETA,
-        border_radius=ft.border_radius.only(top_left=30, top_right=30),
-        shadow=ft.BoxShadow(spread_radius=1, blur_radius=10, color=ft.Colors.BLACK12, offset=ft.Offset(0, -5)),
-        content=card_content
-    )
+        gradient=ft.LinearGradient(
+            begin=ft.alignment.top_left,
+            end=ft.alignment.bottom_right,
+            colors=["#10b981", "#84cc16"],
+        ),
+        content=ft.Column(
+            [
+                ft.Container(
+                    content=ft.Column(
+                        [
+                            ft.Container(
+                                content=ft.Text("⚡", size=80, color=ft.Colors.WHITE),
+                                width=120,
+                                height=120,
+                                border_radius=60,
+                                alignment=ft.alignment.center,
+                                bgcolor=ft.Colors.with_opacity(0.2, ft.Colors.WHITE),
+                            ),
+                            ft.Container(height=20),
+                            ft.Text(
+                                "EcoCharge",
+                                size=36,
+                                weight=ft.FontWeight.BOLD,
+                                color=ft.Colors.WHITE,
+                            ),
+                            ft.Text(
+                                "Energía limpia para tu viaje",
+                                size=14,
+                                color=ft.Colors.WHITE70,
+                            ),
+                        ],
+                        horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+                    ),
+                    margin=ft.margin.only(bottom=40),
+                ),
 
-    # --- 3. Contenido Principal del View ---
-    main_column = ft.Column(
-        [
-            ft.Container(expand=True), 
-            header_area,
-            login_card,
-        ],
-        spacing=0,
-        alignment=ft.MainAxisAlignment.END, 
-        horizontal_alignment=ft.CrossAxisAlignment.CENTER,
-        expand=True
-    )
-    
-    # --- 4. Container Principal con el Degradado ---
-    main_container = ft.Container(
-        content=main_column,
-        expand=True,
-        gradient=GRADIENT_BACKGROUND
-    )
-    
-    return ft.View(
-        "/",
-        controls=[main_container],
-        bgcolor=ft.Colors.TRANSPARENT 
+                ft.Container(
+                    content=ft.Column(
+                        [
+                            ft.Text(
+                                "Iniciar Sesión",
+                                size=24,
+                                weight=ft.FontWeight.BOLD,
+                                color="#1f2937",
+                            ),
+                            ft.Container(height=20),
+                            email_input,
+                            password_input,
+                            ft.Container(height=10),
+                            ft.Container(
+                                content=ft.ElevatedButton(
+                                    content=ft.Text("Iniciar Sesión", size=16),
+                                    width=float("inf"),
+                                    height=50,
+                                    style=ft.ButtonStyle(
+                                        shape=ft.RoundedRectangleBorder(radius=12),
+                                        bgcolor="#10b981",
+                                    ),
+                                    on_click=handle_login,
+                                ),
+                                margin=ft.margin.only(top=10),
+                            ),
+                            ft.Container(height=20),
+                            ft.Row(
+                                [
+                                    ft.Text("¿No tienes cuenta?", size=14, color="#6b7280"),
+                                    ft.TextButton(
+                                        "Regístrate",
+                                        style=ft.ButtonStyle(color="#10b981"),
+                                    ),
+                                ],
+                                alignment=ft.MainAxisAlignment.CENTER,
+                            ),
+                        ],
+                    ),
+                    bgcolor=ft.Colors.WHITE,
+                    border_radius=20,
+                    padding=30,
+                    shadow=ft.BoxShadow(
+                        spread_radius=0,
+                        blur_radius=20,
+                        color=ft.Colors.with_opacity(0.1, ft.Colors.BLACK),
+                    ),
+                ),
+            ],
+            horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+            scroll=ft.ScrollMode.AUTO,
+        ),
+        padding=20,
     )
