@@ -1,5 +1,7 @@
 import flet as ft
 import webbrowser
+from perfil import perfil_view
+from mapa import mapa_view
 
 def main_menu_view(page: ft.Page):
     COLOR_PRIMARIO = "#32BD18"
@@ -10,19 +12,19 @@ def main_menu_view(page: ft.Page):
 
     page.bgcolor = COLOR_FONDO
 
-
+    # --- Funciones de navegación ---
     def open_maps(e):
+        page.views.append(mapa_view(page))
         page.go("/mapa")
 
     def open_qr(e):
         webbrowser.open("https://example.com/qr-payment")
 
     def open_profile(e):
+        page.views.append(perfil_view(page))
         page.go("/perfil")
 
-    def go_login(e):
-        page.go("/")
-
+    # --- Header ---
     header = ft.Container(
         width=page.width,
         padding=ft.padding.symmetric(horizontal=20, vertical=50),
@@ -37,17 +39,13 @@ def main_menu_view(page: ft.Page):
         )
     )
 
+    # --- Puntos de carga ---
     puntos_carga = ft.Container(
         width=350,
         height=140,
         border_radius=15,
         bgcolor=COLOR_FONDO,
-        shadow=ft.BoxShadow(
-            spread_radius=1,
-            blur_radius=10,
-            color=ft.Colors.BLACK12,
-            offset=ft.Offset(0, 2),
-        ),
+        shadow=ft.BoxShadow(spread_radius=1, blur_radius=10, color=ft.Colors.BLACK12, offset=ft.Offset(0, 2)),
         padding=ft.padding.all(15),
         content=ft.Column(
             [
@@ -69,6 +67,7 @@ def main_menu_view(page: ft.Page):
         on_click=open_maps
     )
 
+    # --- Estado del vehículo ---
     bateria_porcentaje = 68
     autonomia_km = 245
 
@@ -76,12 +75,7 @@ def main_menu_view(page: ft.Page):
         width=350,
         border_radius=15,
         bgcolor=COLOR_FONDO,
-        shadow=ft.BoxShadow(
-            spread_radius=1,
-            blur_radius=10,
-            color=ft.Colors.BLACK12,
-            offset=ft.Offset(0, 2),
-        ),
+        shadow=ft.BoxShadow(spread_radius=1, blur_radius=10, color=ft.Colors.BLACK12, offset=ft.Offset(0, 2)),
         padding=15,
         content=ft.Column(
             [
@@ -92,19 +86,12 @@ def main_menu_view(page: ft.Page):
                     ],
                     spacing=5
                 ),
-
                 ft.Divider(height=10, color=ft.Colors.TRANSPARENT),
-
                 ft.Column(
                     [
                         ft.Row(
                             [
-                                ft.Row(
-                                    [
-                                        ft.Text("Batería", color=ft.Colors.BLACK, size=14)
-                                    ],
-                                    spacing=5
-                                ),
+                                ft.Text("Batería", color=ft.Colors.BLACK, size=14),
                                 ft.Text(f"{bateria_porcentaje}%", color=ft.Colors.BLACK, size=24, weight=ft.FontWeight.BOLD),
                             ],
                             alignment=ft.MainAxisAlignment.SPACE_BETWEEN
@@ -113,12 +100,9 @@ def main_menu_view(page: ft.Page):
                             ft.ProgressBar(value=bateria_porcentaje / 100, bgcolor=COLOR_GRIS_BORDE, color=COLOR_LIMA, width=320, height=10),
                             margin=ft.margin.only(top=5, bottom=5)
                         ),
-                    ],
-                    spacing=0
+                    ]
                 ),
-
                 ft.Divider(height=20, color=ft.Colors.TRANSPARENT),
-
                 ft.Container(
                     bgcolor=COLOR_LIMA + "33",
                     border_radius=10,
@@ -133,10 +117,11 @@ def main_menu_view(page: ft.Page):
                     )
                 )
             ],
-            spacing=8,
+            spacing=8
         )
     )
 
+    # --- Tarifas de carga ---
     tarifa_rapida = ft.Container(
         expand=True,
         height=180,
@@ -203,6 +188,7 @@ def main_menu_view(page: ft.Page):
         )
     )
 
+    # --- CO2 ahorrado ---
     co2_ahorrado = ft.Container(
         width=350,
         padding=ft.padding.only(left=15, right=15, top=5, bottom=20),
@@ -216,6 +202,7 @@ def main_menu_view(page: ft.Page):
         )
     )
 
+    # --- Barra inferior ---
     nav_bar = ft.Container(
         width=page.width,
         height=70,
@@ -246,12 +233,7 @@ def main_menu_view(page: ft.Page):
                     border_radius=30,
                     bgcolor=COLOR_AMARILLO,
                     alignment=ft.alignment.center,
-                    shadow=ft.BoxShadow(
-                        spread_radius=1,
-                        blur_radius=5,
-                        color=ft.Colors.BLACK12,
-                        offset=ft.Offset(0, 2),
-                    )
+                    shadow=ft.BoxShadow(spread_radius=1, blur_radius=5, color=ft.Colors.BLACK12, offset=ft.Offset(0, 2)),
                 ),
                 ft.Column(
                     [
@@ -267,6 +249,7 @@ def main_menu_view(page: ft.Page):
         )
     )
 
+    # --- Contenido scrollable ---
     scrollable_content = ft.Container(
         expand=True,
         bgcolor=COLOR_FONDO,
@@ -287,11 +270,7 @@ def main_menu_view(page: ft.Page):
         "/menu",
         [
             scrollable_content,
-
-            ft.Container(
-                content=nav_bar,
-                alignment=ft.alignment.bottom_center,
-            )
+            ft.Container(content=nav_bar, alignment=ft.alignment.bottom_center)
         ],
         bgcolor=COLOR_FONDO,
         padding=0,
