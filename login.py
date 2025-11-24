@@ -1,6 +1,8 @@
 import flet as ft
+from bd.users_db import verify_user  # función que verifica usuario y contraseña en DB
 
 def LoginView(on_login):
+    # Campos de input
     email_input = ft.TextField(
         label="Correo electrónico",
         hint_text="tu@email.com",
@@ -18,18 +20,23 @@ def LoginView(on_login):
         focused_border_color="#10b981",
     )
 
+    # Función para manejar login
     def handle_login(e):
         email = email_input.value
         password = password_input.value
 
-        if email and password:
-            on_login({"email": email})  # llama al callback del main
+        # 🔹 Verificamos el usuario y obtenemos los datos
+        user_data = verify_user(email, password)
+
+        if user_data:  # Si se devuelve un diccionario con los datos
+            on_login(user_data)  # 🔹 Pasamos los datos al callback
         else:
-            email_input.error_text = "Por favor completa ambos campos"
+            # Mostrar error
+            email_input.error_text = "Usuario o contraseña incorrectos"
             email_input.update()
             password_input.update()
 
-    # Contenedor principal con degradado igual que tus otras vistas
+    # Estructura visual (igual que antes)
     return ft.Container(
         expand=True,
         gradient=ft.LinearGradient(
@@ -39,6 +46,7 @@ def LoginView(on_login):
         ),
         content=ft.Column(
             [
+                # Logo y título
                 ft.Container(
                     content=ft.Column(
                         [
@@ -68,6 +76,7 @@ def LoginView(on_login):
                     margin=ft.margin.only(bottom=40),
                 ),
 
+                # Formulario
                 ft.Container(
                     content=ft.Column(
                         [
@@ -78,9 +87,13 @@ def LoginView(on_login):
                                 color="#1f2937",
                             ),
                             ft.Container(height=20),
+
                             email_input,
                             password_input,
+
                             ft.Container(height=10),
+
+                            # Botón de login
                             ft.Container(
                                 content=ft.ElevatedButton(
                                     content=ft.Text("Iniciar Sesión", size=16),
@@ -90,11 +103,14 @@ def LoginView(on_login):
                                         shape=ft.RoundedRectangleBorder(radius=12),
                                         bgcolor="#10b981",
                                     ),
-                                    on_click=handle_login,
+                                    on_click=handle_login,  # llamamos a nuestra función
                                 ),
                                 margin=ft.margin.only(top=10),
                             ),
+
                             ft.Container(height=20),
+
+                            # Registro
                             ft.Row(
                                 [
                                     ft.Text("¿No tienes cuenta?", size=14, color="#6b7280"),
