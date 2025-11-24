@@ -1,0 +1,31 @@
+
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="utf-8" />
+        <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+        <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+        <style>
+            html, body, #map {
+                height: 100%;
+                margin: 0;
+                border-radius: 12px;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="map"></div>
+        <script>
+            var map = L.map('map').setView([-25.2637, -57.5759], 11);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '© OpenStreetMap'
+            }).addTo(map);
+            L.marker([-25.282, -57.6359]).addTo(map).bindPopup("<b>Asunción Centro</b><br>Av. España y Brasilia");
+L.marker([-25.3112, -57.5637]).addTo(map).bindPopup("<b>Fernando de la Mora</b><br>Av. Mariscal López y Ruta 2");
+L.marker([-25.34, -57.52]).addTo(map).bindPopup("<b>San Lorenzo</b><br>Av. San Blas 1234");
+
+        </script>
+    </body>
+    </html>
+    
