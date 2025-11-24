@@ -1,223 +1,215 @@
 import flet as ft
 
-COLOR_PRIMARIO_VERDE = "#32BD18"
-COLOR_VERDE_CLARO_HEADER = "#6CCF5C"
-COLOR_AVATAR = "#7EE26C"
-COLOR_TEXTO_GRIS = ft.Colors.GREY_700
-COLOR_CERRAR_SESION = ft.Colors.RED_500
-COLOR_AMARILLO_QR = "#FFC700"
-
-def create_action_tile(icon, title, subtitle, on_click_handler=None, icon_color=COLOR_AVATAR, title_color=ft.Colors.BLACK, subtitle_color=COLOR_TEXTO_GRIS):
-    list_tile = ft.ListTile(
-        leading=ft.Icon(icon, color=icon_color),
-        title=ft.Text(title, color=title_color, weight=ft.FontWeight.BOLD),
-        subtitle=ft.Text(subtitle, color=subtitle_color),
-        trailing=ft.Icon(ft.Icons.ARROW_FORWARD_IOS, size=16, color=ft.Colors.GREY_400),
-        on_click=on_click_handler,
-        content_padding=ft.padding.only(left=5),
-        min_vertical_padding=15
-    )
+def _info_row(icon, label, value):
     return ft.Container(
-        content=list_tile,
-        border=ft.border.only(bottom=ft.BorderSide(1, ft.Colors.GREY_300)),
-    )
-
-def create_stat_block(value, label, background_color, flex_weight=1):
-    return ft.Container(
-        content=ft.Column(
-            [
-                ft.Text(value, size=28, weight=ft.FontWeight.BOLD, color=ft.Colors.BLACK),
-                ft.Text(label, color=COLOR_TEXTO_GRIS, size=14, text_align=ft.TextAlign.CENTER),
-            ],
-            alignment=ft.MainAxisAlignment.CENTER,
-            horizontal_alignment=ft.CrossAxisAlignment.CENTER
-        ),
-        expand=flex_weight,
-        height=100,
-        padding=ft.padding.all(10),
-        alignment=ft.alignment.center,
-        bgcolor=background_color,
-        border_radius=ft.border_radius.all(15),
-        shadow=ft.BoxShadow(
-            blur_radius=5,
-            color=ft.Colors.BLACK12,
-            offset=ft.Offset(0, 3)
-        )
-    )
-
-def perfil_view(page: ft.Page):
-
-    def open_dashboard(e):
-        page.go("/dashboard")
-
-    def open_qr(e):
-        page.go("/qr")
-
-    def open_profile(e):
-        pass  # ya estamos en perfil
-
-    def editar_perfil(e):
-        page.snack_bar = ft.SnackBar(ft.Text("Editar perfil aún no implementado"), bgcolor=COLOR_PRIMARIO_VERDE)
-        page.snack_bar.open = True
-        page.update()
-
-    def cerrar_sesion(e):
-        page.go("/")
-
-    # Header
-    header = ft.Container(
-        content=ft.Column(
-            [
-                ft.Row(
-                    [
-                        ft.Container(width=35, height=35),
-                        ft.Text("Mi Perfil", size=20, weight=ft.FontWeight.BOLD, color=ft.Colors.WHITE),
-                        ft.Container(
-                            content=ft.Icon(ft.Icons.EDIT_OUTLINED, color=ft.Colors.WHITE, size=20),
-                            alignment=ft.alignment.center,
-                            width=35,
-                            height=35,
-                            border_radius=ft.border_radius.all(10),
-                            bgcolor=ft.Colors.WHITE24,
-                            on_click=editar_perfil,
-                            tooltip="Editar Perfil"
-                        )
-                    ],
-                    alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
-                ),
-                ft.Container(height=30),
-            ]
-        ),
-        padding=ft.padding.only(left=25, right=25, top=20),
-        gradient=ft.LinearGradient(
-            begin=ft.alignment.top_center,
-            end=ft.alignment.bottom_center,
-            colors=[COLOR_VERDE_CLARO_HEADER, COLOR_PRIMARIO_VERDE],
-        ),
-        width=page.width,
-        height=200,
-        border_radius=ft.border_radius.only(bottom_left=30, bottom_right=30)
-    )
-
-    # Contenido del perfil
-    card_content = ft.Container(
-        content=ft.Column(
-            [
-                ft.Column(
-                    [
-                        ft.CircleAvatar(
-                            content=ft.Icon(ft.Icons.PERSON, size=50, color=ft.Colors.WHITE),
-                            radius=40,
-                            bgcolor=COLOR_AVATAR
-                        ),
-                        ft.Text("Paloma Quintana", size=20, weight=ft.FontWeight.BOLD, color=ft.Colors.BLACK),
-                        ft.Text("paloma@example.com", size=14, color=COLOR_TEXTO_GRIS),
-                        ft.Row([
-                            ft.Icon(ft.Icons.DIRECTIONS_CAR_FILLED, size=16, color=COLOR_TEXTO_GRIS),
-                            ft.Text("Usuario Eco", size=14, color=COLOR_TEXTO_GRIS)
-                        ], spacing=5)
-                    ],
-                    horizontal_alignment=ft.CrossAxisAlignment.CENTER,
-                    spacing=5,
-                ),
-                ft.Container(height=20),
-                ft.Column(
-                    [
-                        ft.Text("Información Personal", color=ft.Colors.BLACK, size=16, weight=ft.FontWeight.BOLD),
-                        ft.Container(height=10),
-                        create_action_tile(ft.Icons.PHONE, "Teléfono", "+595 123 456 789", editar_perfil),
-                        create_action_tile(ft.Icons.EMAIL, "Correo electrónico", "paloma@example.com", editar_perfil),
-                        create_action_tile(ft.Icons.DIRECTIONS_CAR, "Vehículo", "EcoStar Model X", editar_perfil),
-                        create_action_tile(ft.Icons.CALENDAR_TODAY, "Miembro desde", "Enero 2024", editar_perfil),
-                    ],
-                    spacing=0,
-                ),
-                ft.Container(height=20),
-                ft.Text("Estadísticas", color=ft.Colors.BLACK, size=16, weight=ft.FontWeight.BOLD),
-                ft.Container(height=10),
-                ft.Row(
-                    [
-                        create_stat_block("12", "Recargas totales", "#F0FFF0"),
-                        ft.Container(width=10),
-                        create_stat_block("345 km", "Kilómetros recorridos", "#FFFDE7"),
-                    ],
-                    alignment=ft.MainAxisAlignment.SPACE_BETWEEN
-                ),
-                ft.Container(height=20),
-                ft.Text("Opciones", color=ft.Colors.BLACK, size=16, weight=ft.FontWeight.BOLD),
-                ft.Container(height=10),
-                ft.Column(
-                    [
-                        create_action_tile(ft.Icons.HISTORY, "Historial de pagos", "Revisa tus transacciones", open_dashboard),
-                        create_action_tile(ft.Icons.PAYMENT, "Métodos de pago", "Administra tus tarjetas", open_dashboard),
-                        create_action_tile(ft.Icons.SETTINGS, "Configuración", "Ajustes de la aplicación", open_dashboard),
-                        create_action_tile(ft.Icons.LOGOUT, "Cerrar sesión", "Finaliza tu sesión actual", cerrar_sesion, title_color=COLOR_CERRAR_SESION, icon_color=COLOR_CERRAR_SESION),
-                    ],
-                    spacing=0,
-                ),
-                ft.Container(height=90)
-            ]
-        ),
-        margin=ft.margin.only(top=-70, left=20, right=20),
-        padding=ft.padding.all(25),
-        bgcolor=ft.Colors.WHITE,
-        border_radius=ft.border_radius.all(20),
-        shadow=ft.BoxShadow(blur_radius=10, color=ft.Colors.BLACK12, offset=ft.Offset(0, 5))
-    )
-
-    # Barra inferior
-    nav_bar = ft.Container(
-        bgcolor=ft.Colors.WHITE,
-        border=ft.border.only(top=ft.border.BorderSide(1, ft.Colors.GREY_300)),
-        padding=ft.padding.symmetric(horizontal=30, vertical=5),
-        height=70,
         content=ft.Row(
             [
+                ft.Icon(icon, size=20, color="#6b7280"),
                 ft.Column(
                     [
-                        ft.IconButton(ft.Icons.MENU_OPEN, icon_size=28, icon_color=ft.Colors.BLACK54, on_click=open_dashboard),
-                        ft.Text("Menú", color=ft.Colors.BLACK54, size=12)
+                        ft.Text(label, size=12, color="#9ca3af"),
+                        ft.Text(value, size=14, color="#1f2937"),
                     ],
-                    alignment=ft.MainAxisAlignment.CENTER,
-                    horizontal_alignment=ft.CrossAxisAlignment.CENTER,
-                    spacing=0
-                ),
-                ft.Container(
-                    content=ft.IconButton(ft.Icons.QR_CODE_2, icon_size=35, on_click=open_qr, icon_color=ft.Colors.BLACK),
-                    width=60, height=60, border_radius=30, bgcolor=COLOR_AMARILLO_QR, alignment=ft.alignment.center
-                ),
-                ft.Column(
-                    [
-                        ft.IconButton(ft.Icons.PERSON, icon_size=28, on_click=open_profile, icon_color=COLOR_PRIMARIO_VERDE),
-                        ft.Text("Perfil", color=COLOR_PRIMARIO_VERDE, size=12, weight=ft.FontWeight.BOLD)
-                    ],
-                    alignment=ft.MainAxisAlignment.CENTER,
-                    horizontal_alignment=ft.CrossAxisAlignment.CENTER,
-                    spacing=0
+                    spacing=2,
+                    expand=True,
                 ),
             ],
-            alignment=ft.MainAxisAlignment.SPACE_AROUND
-        )
+            spacing=12,
+        ),
+        padding=ft.padding.symmetric(vertical=12),
+        border=ft.border.only(bottom=ft.BorderSide(1, "#f3f4f6")),
     )
 
-    return ft.View(
-        "/perfil",
-        [
-            ft.Stack(
-                [
-                    header,
-                    ft.ListView(
-                        controls=[ft.Container(height=180), card_content],
-                        expand=True,
-                        spacing=0,
-                        padding=ft.padding.only(top=0),
-                    ),
-                ],
-                expand=True,
-            ),
-            nav_bar
-        ],
+def _option_button(icon, text):
+    return ft.Container(
+        content=ft.Row(
+            [
+                ft.Icon(icon, size=20, color="#6b7280"),
+                ft.Text(text, size=14, color="#1f2937", expand=True),
+                ft.Icon(ft.Icons.CHEVRON_RIGHT, size=20, color="#9ca3af"),
+            ],
+            spacing=12,
+        ),
         bgcolor=ft.Colors.WHITE,
-        padding=0,
-        vertical_alignment=ft.CrossAxisAlignment.STRETCH
+        border_radius=12,
+        padding=16,
+        margin=ft.margin.only(bottom=8),
+        on_click=lambda _: None,
+        ink=True,
+    )
+
+def ProfileView(on_logout=None, user_data=None):
+    """
+    user_data: diccionario con los datos del usuario logeado
+    {
+        "first_name": str,
+        "last_name": str,
+        "email": str,
+        "phone": str,
+        "city": str,
+        "vehicle": str,
+        "plan": str
+    }
+    """
+    # Si no hay datos, usamos valores por defecto
+    if user_data is None:
+        user_data = {
+            "first_name": "Usuario",
+            "last_name": "",
+            "email": "correo@ejemplo.com",
+            "phone": "-",
+            "city": "-",
+            "vehicle": "-",
+            "plan": "-"
+        }
+
+    full_name = f"{user_data['first_name']} {user_data['last_name']}".strip()
+
+    return ft.Column(
+        [
+            # Header
+            ft.Container(
+                content=ft.Container(
+                    content=ft.Column(
+                        [
+                            ft.Row(
+                                [
+                                    ft.Container(
+                                        content=ft.Icon(ft.Icons.PERSON, size=40, color=ft.Colors.WHITE),
+                                        width=80,
+                                        height=80,
+                                        bgcolor="#10b981",
+                                        border_radius=40,
+                                        alignment=ft.alignment.center,
+                                        border=ft.border.all(3, ft.Colors.WHITE),
+                                    ),
+                                ],
+                                alignment=ft.MainAxisAlignment.CENTER,
+                            ),
+                            ft.Container(height=12),
+                            ft.Text(
+                                full_name,
+                                size=24,
+                                weight=ft.FontWeight.W_600,
+                                color=ft.Colors.WHITE,
+                            ),
+                            ft.Text(
+                                user_data.get("email", ""),
+                                size=14,
+                                color="#d1fae5",
+                            ),
+                        ],
+                        horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+                    ),
+                    padding=ft.padding.only(left=24, right=24, top=48, bottom=32),
+                ),
+                gradient=ft.LinearGradient(
+                    begin=ft.alignment.center_left,
+                    end=ft.alignment.center_right,
+                    colors=["#10b981", "#84cc16"],
+                ),
+            ),
+            
+            # Estadísticas (pueden seguir fijas o adaptarse si quieres luego)
+            ft.Container(
+                content=ft.Row(
+                    [
+                        ft.Container(
+                            content=ft.Column(
+                                [
+                                    ft.Text("156", size=24, weight=ft.FontWeight.BOLD, color="#10b981"),
+                                    ft.Text("Cargas", size=12, color="#6b7280"),
+                                ],
+                                horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+                                spacing=4,
+                            ),
+                            expand=True,
+                        ),
+                        ft.Container(width=1, bgcolor="#e5e7eb", height=40),
+                        ft.Container(
+                            content=ft.Column(
+                                [
+                                    ft.Text("2.4t", size=24, weight=ft.FontWeight.BOLD, color="#10b981"),
+                                    ft.Text("CO₂ ahorrado", size=12, color="#6b7280"),
+                                ],
+                                horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+                                spacing=4,
+                            ),
+                            expand=True,
+                        ),
+                        ft.Container(width=1, bgcolor="#e5e7eb", height=40),
+                        ft.Container(
+                            content=ft.Column(
+                                [
+                                    ft.Text("3.2k", size=24, weight=ft.FontWeight.BOLD, color="#10b981"),
+                                    ft.Text("km recorridos", size=12, color="#6b7280"),
+                                ],
+                                horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+                                spacing=4,
+                            ),
+                            expand=True,
+                        ),
+                    ],
+                    alignment=ft.MainAxisAlignment.SPACE_AROUND,
+                ),
+                bgcolor=ft.Colors.WHITE,
+                border_radius=16,
+                padding=20,
+                margin=ft.margin.only(left=24, right=24, top=-20, bottom=24),
+                shadow=ft.BoxShadow(spread_radius=0, blur_radius=20, color=ft.Colors.with_opacity(0.1, ft.Colors.BLACK)),
+            ),
+            
+            # Información personal
+            ft.Container(
+                content=ft.Column(
+                    [
+                        ft.Text("Información Personal", size=18, weight=ft.FontWeight.W_600, color="#1f2937"),
+                        ft.Container(height=16),
+                        
+                        _info_row(ft.Icons.PHONE, "Teléfono", user_data.get("phone", "-")),
+                        _info_row(ft.Icons.LOCATION_ON, "Ciudad", user_data.get("city", "-")),
+                        _info_row(ft.Icons.ELECTRIC_CAR, "Vehículo", user_data.get("vehicle", "-")),
+                        _info_row(ft.Icons.CREDIT_CARD, "Plan", user_data.get("plan", "-")),
+                    ],
+                ),
+                padding=ft.padding.symmetric(horizontal=24),
+                margin=ft.margin.only(bottom=24),
+            ),
+            
+            # Opciones
+            ft.Container(
+                content=ft.Column(
+                    [
+                        _option_button(ft.Icons.HISTORY, "Historial de cargas"),
+                        _option_button(ft.Icons.PAYMENT, "Métodos de pago"),
+                        _option_button(ft.Icons.SETTINGS, "Configuración"),
+                        _option_button(ft.Icons.HELP_OUTLINE, "Ayuda y soporte"),
+                        
+                        ft.Container(height=12),
+                        
+                        # Botón de cerrar sesión
+                        ft.Container(
+                            content=ft.TextButton(
+                                content=ft.Row(
+                                    [
+                                        ft.Icon(ft.Icons.LOGOUT, color="#ef4444", size=20),
+                                        ft.Text("Cerrar sesión", color="#ef4444", size=16),
+                                    ],
+                                    spacing=8,
+                                    alignment=ft.MainAxisAlignment.CENTER,
+                                ),
+                                on_click=on_logout,
+                            ),
+                            bgcolor="#fef2f2",
+                            border_radius=12,
+                            padding=8,
+                        ),
+                    ],
+                ),
+                padding=ft.padding.symmetric(horizontal=24),
+                margin=ft.margin.only(bottom=100),
+            ),
+        ],
+        scroll=ft.ScrollMode.AUTO,
+        spacing=0,
     )
