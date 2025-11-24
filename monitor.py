@@ -1,5 +1,5 @@
 import flet as ft
-from db_utils import get_charge_prices
+from db_utils_monitor import get_charge_prices
 
 def main(page: ft.Page):
     page.title = "Estación de Carga EcoCharge"
@@ -7,7 +7,7 @@ def main(page: ft.Page):
     page.window.height = 750
     page.padding = 0
     page.bgcolor = ft.Colors.GREY_900
-    
+
     # Obtener precios desde la base de datos
     charge_prices = get_charge_prices()
 
@@ -18,15 +18,73 @@ def main(page: ft.Page):
     selected_payment.current = None
     current_step = ft.Ref[int]()
     current_step.current = 1
-    
+
+    # Estado para pantalla de carga
+    loading_active = ft.Ref[bool]()
+    loading_active.current = False
+    loading_messages = [
+        "La energía limpia impulsa tu camino.",
+        "Reduciendo emisiones de CO₂ con cada carga.",
+        "Optimizando tu carga para mayor eficiencia.",
+        "EcoCharge: cada carga cuenta para el planeta.",
+        "Cargando con energía sustentable y responsable."
+    ]
+    loading_index = ft.Ref[int]()
+    loading_index.current = 0
+    loading_timer = None  # se guardará el Timer si está activo
+
+    def rotate_loading_message(e=None):
+        """Cambia el mensaje de la pantalla de carga."""
+        loading_index.current = (loading_index.current + 1) % len(loading_messages)
+        page.update()
+
+    def start_loading_screen():
+        """Activa pantalla de carga usando threading.Timer (compatible con cualquier versión de Flet)."""
+        import threading
+        nonlocal loading_timer
+
+        loading_active.current = True
+        loading_index.current = 0
+
+        def _rotate():
+            if loading_active.current:
+                rotate_loading_message()
+                page.update()
+                # Reprogramar el timer
+                nonlocal loading_timer
+                loading_timer = threading.Timer(5, _rotate)
+                loading_timer.daemon = True
+                loading_timer.start()
+
+        # Iniciar el primer timer
+        loading_timer = threading.Timer(5, _rotate)
+        loading_timer.daemon = True
+        loading_timer.start()
+
+        page.update()
+
+    def stop_loading_screen():
+        """Detiene la pantalla de carga y el timer."""
+        nonlocal loading_timer
+        loading_active.current = False
+
+        try:
+            if loading_timer is not None:
+                loading_timer.cancel()
+        except Exception:
+            pass
+
+        loading_timer = None
+        page.update()
+
     def charging_option(title, description, price, duration, charge_type, recommended=False):
         """Componente de opción de carga"""
         is_selected = selected_charge_type.current == charge_type
-        
+
         def on_click(e):
             selected_charge_type.current = charge_type
             page.update()
-        
+
         option_card = ft.Container(
             content=ft.Stack(
                 [
@@ -104,17 +162,17 @@ def main(page: ft.Page):
             on_click=on_click,
             ink=True,
         )
-        
+
         return option_card
-    
+
     def payment_method(icon, label, payment_type):
         """Componente de método de pago"""
         is_selected = selected_payment.current == payment_type
-        
+
         def on_click(e):
             selected_payment.current = payment_type
             page.update()
-        
+
         return ft.Container(
             content=ft.Column(
                 [
@@ -150,38 +208,22 @@ def main(page: ft.Page):
             on_click=on_click,
             ink=True,
         )
-    
+
     def handle_continue(e):
         if current_step.current == 1 and selected_charge_type.current:
             current_step.current = 2
             selected_payment.current = None
             page.update()
-    
+
     def handle_back(e):
         current_step.current = 1
         page.update()
-    
+
     def handle_start_charging(e):
+        # En vez de mostrar un diálogo simple, mostramos la pantalla de carga
         if selected_payment.current:
-            charge_name = "rápida" if selected_charge_type.current == "fast" else "normal"
-            payment_names = {
-                "card": "tarjeta",
-                "qr": "código QR",
-                "cash": "efectivo"
-            }
-            payment_name = payment_names.get(selected_payment.current, selected_payment.current)
-            
-            dlg = ft.AlertDialog(
-                title=ft.Text("Iniciando Carga"),
-                content=ft.Text(f"Iniciando carga {charge_name} con pago por {payment_name}"),
-                actions=[
-                    ft.TextButton("OK", on_click=lambda e: page.close_dialog())
-                ],
-            )
-            page.dialog = dlg
-            dlg.open = True
-            page.update()
-    
+            start_loading_screen()
+
     def build_step_indicator():
         """Indicador de progreso de pasos"""
         return ft.Row(
@@ -242,7 +284,7 @@ def main(page: ft.Page):
             alignment=ft.MainAxisAlignment.CENTER,
             spacing=16,
         )
-    
+
     def build_step_1():
         """Paso 1: Selección de tipo de carga"""
         return ft.Container(
@@ -323,12 +365,64 @@ def main(page: ft.Page):
             border_radius=24,
             border=ft.border.all(1, ft.Colors.GREEN_100),
         )
-    
+
+    def build_loading_card():
+        """Construye la tarjeta de la pantalla de carga (estilo similar a otras tarjetas)."""
+        message = loading_messages[loading_index.current]
+        return ft.Container(
+            content=ft.Column(
+                [
+                    ft.Row(
+                        [
+                            ft.Icon(ft.Icons.BATTERY_FULL, size=28, color=ft.Colors.GREEN_700),
+                            ft.Text("Iniciando carga", size=22, weight=ft.FontWeight.W_700, color=ft.Colors.GREEN_900),
+                        ],
+                        spacing=12,
+                        alignment=ft.MainAxisAlignment.CENTER,
+                    ),
+                    ft.Container(height=12),
+                    ft.Text(message, size=16, color=ft.Colors.GREY_700, text_align=ft.TextAlign.CENTER),
+                    ft.Container(height=18),
+                    # Animación decorativa: círculo pulsante + texto
+                    ft.Container(
+                        content=ft.Column(
+                            [
+                                ft.Container(width=120, height=120, border_radius=60, bgcolor=None, content=ft.Icon(ft.Icons.FLASH_ON, size=48, color=ft.Colors.GREEN_600), alignment=ft.alignment.center),
+                                ft.Container(height=8),
+                                ft.Text("Conectando con la red sustentable...", size=14, color=ft.Colors.GREY_600),
+                            ],
+                            alignment=ft.MainAxisAlignment.CENTER,
+                        ),
+                        padding=ft.padding.all(18),
+                        border_radius=16,
+                        bgcolor=ft.Colors.GREEN_50,
+                        border=ft.border.all(1, ft.Colors.GREEN_100),
+                    ),
+                    ft.Container(height=18),
+                    ft.Row(
+                        [
+                            ft.ElevatedButton("Cancelar", on_click=lambda e: stop_loading_screen(), style=ft.ButtonStyle(bgcolor=ft.Colors.GREY_200, color=ft.Colors.GREY_900)),
+                            ft.Container(width=12),
+                            ft.ElevatedButton("Volver al inicio", on_click=lambda e: (stop_loading_screen(), setattr(current_step, 'current', 1), page.update()), bgcolor=ft.Colors.GREEN_600, color=ft.Colors.WHITE),
+                        ],
+                        alignment=ft.MainAxisAlignment.CENTER,
+                    ),
+                ],
+                alignment=ft.MainAxisAlignment.CENTER,
+                horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+                spacing=8,
+            ),
+            padding=32,
+            border_radius=20,
+            bgcolor=ft.Colors.with_opacity(0.95, ft.Colors.WHITE),
+            width=720,
+        )
+
     def build_step_2():
         """Paso 2: Selección de método de pago"""
         charge_name = "Carga Rápida" if selected_charge_type.current == "fast" else "Carga Lenta"
         charge_price = charge_prices[selected_charge_type.current]
-        
+
         return ft.Column(
             [
                 # Tarjeta principal
@@ -472,12 +566,11 @@ def main(page: ft.Page):
                 ),
             ],
             spacing=0,
-    )
+        )
 
-    
     # Contenido principal con estado reactivo
     content_container = ft.Container()
-    
+
     def update_content():
         """Actualiza el contenido según el paso actual"""
         nonlocal charge_prices
@@ -512,10 +605,20 @@ def main(page: ft.Page):
             )
 
         # Contenido principal
-        if current_step.current == 1:
-            step_content = build_step_1()
+        if loading_active.current:
+            # Mostrar la pantalla de carga como tarjeta central
+            step_content = ft.Column(
+                [
+                    build_loading_card(),
+                ],
+                alignment=ft.MainAxisAlignment.CENTER,
+                horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+            )
         else:
-            step_content = build_step_2()
+            if current_step.current == 1:
+                step_content = build_step_1()
+            else:
+                step_content = build_step_2()
 
         content_container.content = ft.Column(
             [
@@ -525,17 +628,17 @@ def main(page: ft.Page):
             ],
             horizontal_alignment=ft.CrossAxisAlignment.CENTER,
             scroll=ft.ScrollMode.AUTO,
-    )
+        )
 
     update_content()
-    
+
     # Override page.update para actualizar el contenido
     original_update = page.update
     def custom_update():
         update_content()
         original_update()
     page.update = custom_update
-    
+
     # Pantalla principal con fondo degradado
     main_screen = ft.Container(
         content=ft.Container(
@@ -560,7 +663,7 @@ def main(page: ft.Page):
         alignment=ft.alignment.center,
         expand=True,
     )
-    
+
     page.add(main_screen)
 
 if __name__ == "__main__":
